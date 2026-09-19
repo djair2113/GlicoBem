@@ -6,21 +6,21 @@
 }
 
 body {
-  background-color: #1e1e1e;
+  background-color: #121212;
   color: #f0f0f0;
   padding: 15px;
-  max-width: 600px;
+  max-width: 500px;
   margin: 0 auto;
 }
 
 header {
-  background: #2b4c7e;
-  color: white;
+  background: #1e3a5f;
+  color: #ffffff;
   padding: 20px;
-  border-radius: 15px;
+  border-radius: 16px;
   text-align: center;
   margin-bottom: 15px;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
 }
 
 header h1 {
@@ -29,15 +29,15 @@ header h1 {
 }
 
 header p {
-  font-size: 15px;
-  opacity: 0.9;
+  font-size: 14px;
+  color: #b0bec5;
 }
 
 .verse-card {
-  background: #253342;
-  border-left: 5px solid #64b5f6;
-  padding: 12px 15px;
-  border-radius: 10px;
+  background: #1c2a38;
+  border-left: 4px solid #64b5f6;
+  padding: 14px;
+  border-radius: 12px;
   margin-bottom: 15px;
   text-align: center;
 }
@@ -52,93 +52,103 @@ header p {
   display: block;
   font-size: 12px;
   color: #64b5f6;
-  margin-top: 5px;
+  margin-top: 6px;
   font-weight: bold;
 }
 
 .reminder {
-  background: #3a3200;
-  border-left: 5px solid #ffb300;
+  background: #2d2600;
+  border-left: 4px solid #ffb300;
   color: #fff8e1;
-  padding: 12px 15px;
+  padding: 12px 14px;
   border-radius: 10px;
   margin-bottom: 15px;
   font-size: 13px;
+  line-height: 1.4;
 }
 
 .card {
-  background: #2a2a2a;
+  background: #1e1e1e;
   padding: 18px;
-  border-radius: 15px;
+  border-radius: 16px;
   margin-bottom: 15px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  border: 1px solid #2a2a2a;
 }
 
 .card h2 {
   font-size: 17px;
-  margin-bottom: 12px;
+  margin-bottom: 14px;
   color: #64b5f6;
 }
 
 .form-group {
-  margin-bottom: 12px;
+  margin-bottom: 14px;
 }
 
 label {
   display: block;
-  margin-bottom: 5px;
+  margin-bottom: 6px;
   font-size: 13px;
+  color: #cccccc;
 }
 
 input, select {
   width: 100%;
-  padding: 10px;
-  border-radius: 8px;
-  border: 1px solid #444;
-  background: #333;
-  color: #fff;
-  font-size: 14px;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid #333333;
+  background: #2a2a2a;
+  color: #ffffff;
+  font-size: 15px;
+  outline: none;
+}
+
+input:focus, select:focus {
+  border-color: #64b5f6;
 }
 
 .btn-primary {
   width: 100%;
-  padding: 12px;
-  background: #2b4c7e;
-  color: white;
+  padding: 14px;
+  background: #1e3a5f;
+  color: #ffffff;
   border: none;
-  border-radius: 8px;
-  font-size: 15px;
+  border-radius: 10px;
+  font-size: 16px;
   font-weight: bold;
   cursor: pointer;
   margin-top: 5px;
+  transition: background 0.2s ease;
 }
 
 .btn-primary:hover {
-  background: #3b629b;
+  background: #2b5288;
 }
 
 .metrics-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 10px;
+  gap: 12px;
 }
 
 .metric-box {
-  background: #333;
-  padding: 12px;
-  border-radius: 8px;
+  background: #2a2a2a;
+  padding: 14px;
+  border-radius: 10px;
   text-align: center;
 }
 
 .metric-box span {
   display: block;
   font-size: 12px;
-  color: #aaa;
+  color: #888888;
+  margin-bottom: 4px;
 }
 
 .metric-box strong {
   font-size: 18px;
-  color: #fff;
+  color: #ffffff;
 }
 
 .history-container {
@@ -153,40 +163,41 @@ table {
 }
 
 th, td {
-  padding: 8px;
+  padding: 10px 8px;
   text-align: left;
-  border-bottom: 1px solid #444;
+  border-bottom: 1px solid #2a2a2a;
 }
 
 th {
   color: #64b5f6;
   position: sticky;
   top: 0;
-  background: #2a2a2a;
+  background: #1e1e1e;
 }
 
 .btn-delete {
-  background: #c62828;
-  color: white;
+  background: #d32f2f;
+  color: #ffffff;
   border: none;
-  padding: 3px 7px;
-  border-radius: 4px;
+  padding: 4px 8px;
+  border-radius: 6px;
   cursor: pointer;
+  font-size: 12px;
 }
 
 .empty-msg {
   text-align: center;
-  color: #888;
-  padding: 10px 0;
+  color: #777777;
+  padding: 15px 0;
 }
 
 .link-btn {
   display: block;
-  background: #333;
+  background: #2a2a2a;
   color: #64b5f6;
   text-decoration: none;
-  padding: 10px;
-  border-radius: 8px;
+  padding: 12px;
+  border-radius: 10px;
   margin-bottom: 8px;
   text-align: center;
   font-size: 13px;
