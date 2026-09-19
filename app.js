@@ -1,11 +1,85 @@
 document.addEventListener('DOMContentLoaded', () => {
+  initProfile();
+  setDefaultDateTime();
+  
   const form = document.getElementById('glicemiaForm');
   form.addEventListener('submit', (e) => {
     e.preventDefault();
     addMeasurement();
   });
+
+  setupProfileModal();
   updateDashboard();
 });
+
+// --- PERFIL DE UTILIZADOR ---
+const DEFAULT_USER = {
+  name: 'Martinha',
+  birthDate: '1959-10-18'
+};
+
+function getProfile() {
+  const data = localStorage.getItem('glicobem_profile');
+  return data ? JSON.parse(data) : DEFAULT_USER;
+}
+
+function saveProfile(profile) {
+  localStorage.setItem('glicobem_profile', JSON.stringify(profile));
+}
+
+function calculateAge(birthDateStr) {
+  const birthDate = new Date(birthDateStr);
+  const today = new Date();
+  let age = today.getFullYear() - birthDate.getFullYear();
+  const m = today.getMonth() - birthDate.getMonth();
+  if (m < 0 || (m === 0 && today.getDate() < birthDate.getDate())) {
+    age--;
+  }
+  return age;
+}
+
+function initProfile() {
+  const profile = getProfile();
+  document.getElementById('userProfileName').textContent = profile.name;
+  const age = calculateAge(profile.birthDate);
+  document.getElementById('userProfileAge').textContent = `${age} anos | Meu Controle Diário`;
+}
+
+function setupProfileModal() {
+  const modal = document.getElementById('modalProfile');
+  const btnEdit = document.getElementById('btnEditProfile');
+  const btnCancel = document.getElementById('btnCancelProfile');
+  const btnSave = document.getElementById('btnSaveProfile');
+
+  btnEdit.addEventListener('click', () => {
+    const profile = getProfile();
+    document.getElementById('inputUserName').value = profile.name;
+    document.getElementById('inputUserBirth').value = profile.birthDate;
+    modal.classList.remove('hidden');
+  });
+
+  btnCancel.addEventListener('click', () => {
+    modal.classList.add('hidden');
+  });
+
+  btnSave.addEventListener('click', () => {
+    const newName = document.getElementById('inputUserName').value.trim();
+    const newBirth = document.getElementById('inputUserBirth').value;
+
+    if (newName && newBirth) {
+      saveProfile({ name: newName, birthDate: newBirth });
+      initProfile();
+      modal.classList.add('hidden');
+    }
+  });
+}
+
+// --- DADOS E MEDIÇÕES ---
+function setDefaultDateTime() {
+  const now = new Date();
+  now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+  document.getElementById('dataHoraGlicemia').value = now.toISOString().slice(0, 16);
+}
 
 function getStoredData() {
   const data = localStorage.getItem('glicemia_records');
@@ -19,80 +93,92 @@ function saveStoredData(data) {
 function addMeasurement() {
   const valorInput = document.getElementById('valorGlicemia').value;
   const momentoSelect = document.getElementById('momentoGlicemia').value;
-  
-  if (!valorInput) return;
-  
-  const valor = parseFloat(valorInput);
-  const now = new Date();
-  
+  const dataHoraInput = document.getElementById('dataHoraGlicemia').value;
+
+  if (!valorInput || !dataHoraInput) return;
+
   const record = {
     id: Date.now(),
-    data: now.toISOString(),
-    diaStr: now.toLocaleDateString('pt-BR'),
+    valor: parseFloat(valorInput),
     momento: momentoSelect,
-    valor: valor
+    dataHora: dataHoraInput
   };
-  
+
   const records = getStoredData();
   records.unshift(record);
   saveStoredData(records);
-  
-  showFeedback(valor);
+
+  document.getElementById('valorGlicemia').value = '';
+  setDefaultDateTime();
   updateDashboard();
-  document.getElementById('glicemiaForm').reset();
 }
 
-function showFeedback(valor) {
-  const box = document.getElementById('feedbackBox');
-  box.style.display = 'block';
-  
-  if (valor < 140) {
-    box.className = 'alert-box alert-normal';
-    box.innerHTML = '🎉 Parabéns! Diabetes normal.';
-  } else if (valor >= 140 && valor <= 199) {
-    box.className = 'alert-box alert-warning';
-    box.innerHTML = '⚠️ Quase lá! Diabetes mediana (Atenção).';
-  } else {
-    box.className = 'alert-box alert-danger';
-    box.innerHTML = '🚨 Fica alerta! Diabetes alta. Contate seu médico!';
-  }
+function deleteMeasurement(id) {
+  let records = getStoredData();
+  records = records.filter(r => r.id !== id);
+  saveStoredData(records);
+  updateDashboard();
 }
 
+// --- DASHBOARD E HISTÓRICO ---
 function updateDashboard() {
   const records = getStoredData();
+  renderHistory(records);
+  renderMetrics(records);
+}
+
+function renderHistory(records) {
+  const tbody = document.getElementById('historyBody');
+  const emptyMsg = document.getElementById('emptyHistory');
+  tbody.innerHTML = '';
+
   if (records.length === 0) {
-    document.getElementById('avgTotal').innerText = '-';
-    document.getElementById('avgMensal').innerText = '-';
-    document.getElementById('avgTrimestral').innerText = '-';
-    document.getElementById('avgAnual').innerText = '-';
+    emptyMsg.classList.remove('hidden');
     return;
   }
-  
+
+  emptyMsg.classList.add('hidden');
+
+  records.forEach(r => {
+    const tr = document.createElement('tr');
+    const dateFormatted = new Date(r.dataHora).toLocaleString('pt-BR', {
+      dateStyle: 'short',
+      timeStyle: 'short'
+    });
+
+    tr.innerHTML = `
+      <td>${dateFormatted}</td>
+      <td>${r.momento}</td>
+      <td><strong>${r.valor}</strong> mg/dL</td>
+      <td><button class="btn-delete" onclick="deleteMeasurement(${r.id})">✕</button></td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+function renderMetrics(records) {
+  if (records.length === 0) {
+    document.getElementById('metricTotal').textContent = '-- mg/dL';
+    document.getElementById('metricMensal').textContent = '-- mg/dL';
+    document.getElementById('metricTrimestral').textContent = '-- mg/dL';
+    document.getElementById('metricAnual').textContent = '-- mg/dL';
+    return;
+  }
+
   const now = new Date();
-  
-  // Total
-  const sumTotal = records.reduce((acc, r) => acc + r.valor, 0);
-  const avgTotal = sumTotal / records.length;
-  document.getElementById('avgTotal').innerText = avgTotal.toFixed(1) + ' mg/dL';
-  
-  // Mensal (últimos 30 dias)
-  const thirtyDaysAgo = new Date();
-  thirtyDaysAgo.setDate(now.getDate() - 30);
-  const mensalRecords = records.filter(r => new Date(r.data) >= thirtyDaysAgo);
-  const avgMensal = mensalRecords.length > 0 ? mensalRecords.reduce((acc, r) => acc + r.valor, 0) / mensalRecords.length : avgTotal;
-  document.getElementById('avgMensal').innerText = avgMensal.toFixed(1) + ' mg/dL';
-  
-  // Trimestral (últimos 90 dias)
-  const ninetyDaysAgo = new Date();
-  ninetyDaysAgo.setDate(now.getDate() - 90);
-  const trimestralRecords = records.filter(r => new Date(r.data) >= ninetyDaysAgo);
-  const avgTrimestral = trimestralRecords.length > 0 ? trimestralRecords.reduce((acc, r) => acc + r.valor, 0) / trimestralRecords.length : avgTotal;
-  document.getElementById('avgTrimestral').innerText = avgTrimestral.toFixed(1) + ' mg/dL';
-  
-  // Anual (últimos 365 dias)
-  const yearAgo = new Date();
-  yearAgo.setFullYear(now.getFullYear() - 1);
-  const anualRecords = records.filter(r => new Date(r.data) >= yearAgo);
-  const avgAnual = anualRecords.length > 0 ? anualRecords.reduce((acc, r) => acc + r.valor, 0) / anualRecords.length : avgTotal;
-  document.getElementById('avgAnual').innerText = avgAnual.toFixed(1) + ' mg/dL';
+  const avgTotal = calcAverage(records);
+  const avgMensal = calcAverage(records.filter(r => (now - new Date(r.dataHora)) <= 30 * 24 * 60 * 60 * 1000));
+  const avgTrimestral = calcAverage(records.filter(r => (now - new Date(r.dataHora)) <= 90 * 24 * 60 * 60 * 1000));
+  const avgAnual = calcAverage(records.filter(r => (now - new Date(r.dataHora)) <= 365 * 24 * 60 * 60 * 1000));
+
+  document.getElementById('metricTotal').textContent = `${avgTotal} mg/dL`;
+  document.getElementById('metricMensal').textContent = `${avgMensal} mg/dL`;
+  document.getElementById('metricTrimestral').textContent = `${avgTrimestral} mg/dL`;
+  document.getElementById('metricAnual').textContent = `${avgAnual} mg/dL`;
+}
+
+function calcAverage(arr) {
+  if (arr.length === 0) return '--';
+  const sum = arr.reduce((acc, curr) => acc + curr.valor, 0);
+  return (sum / arr.length).toFixed(1);
 }
