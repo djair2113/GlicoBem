@@ -3,73 +3,125 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Controle de Glicemia</title>
+  <title>GlicoBem - Controle de Glicemia</title>
   <link rel="stylesheet" href="style.css">
   <link rel="manifest" href="manifest.json">
 </head>
 <body>
 
+  <!-- Cabeçalho / Perfil -->
   <header>
-    <h1>Jussara Valença dos Santos</h1>
-    <p>38 anos | Meu Controle Diário</p>
+    <h1 id="userProfileName">Martinha</h1>
+    <p id="userProfileAge">-- anos | Meu Controle Diário</p>
+    <button id="btnEditProfile" type="button">⚙️ Editar Perfil</button>
   </header>
 
+  <!-- Modal de Edição de Perfil -->
+  <div id="modalProfile" class="modal hidden">
+    <div class="modal-content">
+      <h3>Editar Perfil do Utilizador</h3>
+      <label for="inputUserName">Nome:</label>
+      <input type="text" id="inputUserName" value="Martinha">
+
+      <label for="inputUserBirth">Data de Nascimento:</label>
+      <input type="date" id="inputUserBirth" value="1959-10-18">
+
+      <div class="modal-actions">
+        <button type="button" id="btnSaveProfile">Guardar</button>
+        <button type="button" id="btnCancelProfile">Cancelar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lembrete -->
   <div class="reminder">
     💊 Lembre-se de tomar as medicações prescritas pelo médico nos horários corretos!
   </div>
 
+  <!-- Formulário de Registro -->
   <div class="card">
     <h2>Registrar Nova Glicemia</h2>
     <form id="glicemiaForm">
       <div class="form-group">
         <label for="valorGlicemia">Valor da Glicemia (mg/dL):</label>
-        <input type="number" id="valorGlicemia" placeholder="Ex: 145" required inputmode="numeric">
+        <input type="number" id="valorGlicemia" placeholder="Ex: 145" required>
       </div>
+
       <div class="form-group">
         <label for="momentoGlicemia">Momento:</label>
         <select id="momentoGlicemia">
-          <option value="Antes do café">Antes do Café</option>
-          <option value="2h após café">2h Após Café</option>
-          <option value="Antes do almoço">Antes do Almoço</option>
-          <option value="2h após almoço">2h Após Almoço</option>
-          <option value="Antes da janta">Antes da Janta</option>
-          <option value="2h após janta">2h Após Janta</option>
+          <option value="Em Jejum">Em Jejum</option>
+          <option value="Antes do Café">Antes do Café</option>
+          <option value="Após o Café">Após o Café</option>
+          <option value="Antes do Almoço">Antes do Almoço</option>
+          <option value="Após o Almoço">Após o Almoço</option>
+          <option value="Antes do Jantar">Antes do Jantar</option>
+          <option value="Após o Jantar">Após o Jantar</option>
+          <option value="Ao Deitar">Ao Deitar</option>
+          <option value="De Madrugada">De Madrugada</option>
         </select>
       </div>
+
+      <div class="form-group">
+        <label for="dataHoraGlicemia">Data e Hora da Medição:</label>
+        <input type="datetime-local" id="dataHoraGlicemia" required>
+      </div>
+
       <button type="submit" class="btn-primary">Salvar Medição</button>
     </form>
-    <div id="feedbackBox" class="alert-box"></div>
+
+    <div id="statusAlert" class="alert hidden"></div>
   </div>
 
+  <!-- Painel de Métricas -->
   <div class="card">
     <h2>📊 Painel de Métricas (Para o Médico)</h2>
     <div class="metrics-grid">
-      <div class="metric-card">
-        <h3>Média Total</h3>
-        <p id="avgTotal">-</p>
+      <div class="metric-box">
+        <span>Média Total</span>
+        <strong id="metricTotal">-- mg/dL</strong>
       </div>
-      <div class="metric-card">
-        <h3>Média Mensal</h3>
-        <p id="avgMensal">-</p>
+      <div class="metric-box">
+        <span>Média Mensal</span>
+        <strong id="metricMensal">-- mg/dL</strong>
       </div>
-      <div class="metric-card">
-        <h3>Média Trimestral</h3>
-        <p id="avgTrimestral">-</p>
+      <div class="metric-box">
+        <span>Média Trimestral</span>
+        <strong id="metricTrimestral">-- mg/dL</strong>
       </div>
-      <div class="metric-card">
-        <h3>Média Anual</h3>
-        <p id="avgAnual">-</p>
+      <div class="metric-box">
+        <span>Média Anual</span>
+        <strong id="metricAnual">-- mg/dL</strong>
       </div>
     </div>
   </div>
 
+  <!-- Histórico de Medições -->
+  <div class="card">
+    <h2>📋 Histórico de Medições</h2>
+    <div class="history-container">
+      <table id="historyTable">
+        <thead>
+          <tr>
+            <th>Data/Hora</th>
+            <th>Momento</th>
+            <th>Valor</th>
+            <th>Ação</th>
+          </tr>
+        </thead>
+        <tbody id="historyBody">
+          <!-- Registos dinâmicos inseridos via JavaScript -->
+        </tbody>
+      </table>
+      <p id="emptyHistory" class="empty-msg">Nenhuma medição registrada ainda.</p>
+    </div>
+  </div>
+
+  <!-- Sites Úteis -->
   <div class="card">
     <h2>📚 Sites Úteis para Diabéticos</h2>
-    <ul class="links-list">
-      <li><a href="https://www.diabetes.org.br" target="_blank">Sociedade Brasileira de Diabetes (SBD)</a></li>
-      <li><a href="https://www.gov.br/saude" target="_blank">Ministério da Saúde - Orientações</a></li>
-      <li><a href="https://diabetes.org" target="_blank">American Diabetes Association (Inglês)</a></li>
-    </ul>
+    <a href="https://diabetes.org.br/" target="_blank" class="link-btn">Sociedade Brasileira de Diabetes (SBD)</a>
+    <a href="https://www.gov.br/saude/pt-br" target="_blank" class="link-btn">Ministério da Saúde - Orientações</a>
   </div>
 
   <script src="app.js"></script>
