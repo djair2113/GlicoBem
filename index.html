@@ -1,35 +1,4 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GlicoBem - Controle da Martinha</title>
-  <link rel="stylesheet" href="style.css">
-  <link rel="manifest" href="manifest.json">
-</head>
-<body>
-
-  <!-- Cabeçalho Fixo da Martinha -->
-  <header>
-    <h1>Martinha</h1>
-    <p id="userProfileAge">-- anos | Meu Controle Diário</p>
-  </header>
-
-  <!-- Mensagem Motivacional Bíblica -->
-  <div class="verse-card">
-    <p class="verse-text">📖 <em>"Deus é o nosso refúgio e fortaleza, socorro bem presente na hora da angústia."</em></p>
-    <span class="verse-ref">— Salmos 46:1</span>
-  </div>
-
-  <!-- Lembrete -->
-  <div class="reminder">
-    💊 Lembre-se de tomar as medicações prescritas pelo médico nos horários corretos!
-  </div>
-
-  <!-- Formulário de Registro -->
-  <div class="card">
-    <h2>Registrar Nova Glicemia</h2>
-    <form id="glicemiaForm">
+<form id="glicemiaForm" onsubmit="event.preventDefault(); addMeasurement();">
       <div class="form-group">
         <label for="valorGlicemia">Valor da Glicemia (mg/dL):</label>
         <input type="number" id="valorGlicemia" placeholder="Ex: 145" required>
@@ -55,53 +24,5 @@
         <input type="datetime-local" id="dataHoraGlicemia" required>
       </div>
 
-      <button type="submit" class="btn-primary">Salvar Medição</button>
+      <button type="button" onclick="addMeasurement();" class="btn-primary">Salvar Medição</button>
     </form>
-  </div>
-
-  <!-- Painel de Métricas -->
-  <div class="card">
-    <h2>📊 Painel de Métricas (Para o Médico)</h2>
-    <div class="metrics-grid">
-      <div class="metric-box">
-        <span>Média Total</span>
-        <strong id="metricTotal">-- mg/dL</strong>
-      </div>
-      <div class="metric-box">
-        <span>Total de Registros</span>
-        <strong id="metricCount">--</strong>
-      </div>
-    </div>
-  </div>
-
-  <!-- Histórico de Medições -->
-  <div class="card">
-    <h2>📋 Histórico da Martinha</h2>
-    <div class="history-container">
-      <table id="historyTable">
-        <thead>
-          <tr>
-            <th>Dia / Data</th>
-            <th>Momento</th>
-            <th>Valor</th>
-            <th>Ação</th>
-          </tr>
-        </thead>
-        <tbody id="historyBody">
-          <!-- Registros carregados via JavaScript -->
-        </tbody>
-      </table>
-      <p id="emptyHistory" class="empty-msg hidden">Nenhuma medição registrada ainda.</p>
-    </div>
-  </div>
-
-  <!-- Sites Úteis -->
-  <div class="card">
-    <h2>📚 Links Úteis</h2>
-    <a href="https://diabetes.org.br/" target="_blank" class="link-btn">Sociedade Brasileira de Diabetes (SBD)</a>
-    <a href="https://www.gov.br/saude/pt-br" target="_blank" class="link-btn">Ministério da Saúde - Orientações</a>
-  </div>
-
-  <script src="app.js"></script>
-</body>
-</html>
