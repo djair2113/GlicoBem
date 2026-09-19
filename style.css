@@ -9,7 +9,7 @@ body {
   background-color: #121212;
   color: #f0f0f0;
   padding: 15px;
-  max-width: 500px;
+  max-width: 550px;
   margin: 0 auto;
 }
 
@@ -78,8 +78,31 @@ header p {
 
 .card h2 {
   font-size: 17px;
-  margin-bottom: 14px;
   color: #64b5f6;
+}
+
+.history-header {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.filter-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.filter-group label {
+  font-size: 13px;
+  color: #cccccc;
+  white-space: nowrap;
+}
+
+.filter-group select {
+  padding: 8px 10px;
+  font-size: 13px;
 }
 
 .form-group {
@@ -126,33 +149,34 @@ input:focus, select:focus {
   background: #2b5288;
 }
 
-.metrics-grid {
+.metrics-grid-3 {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 8px;
+  margin-top: 10px;
 }
 
 .metric-box {
   background: #2a2a2a;
-  padding: 14px;
+  padding: 12px 6px;
   border-radius: 10px;
   text-align: center;
 }
 
 .metric-box span {
   display: block;
-  font-size: 12px;
+  font-size: 11px;
   color: #888888;
   margin-bottom: 4px;
 }
 
 .metric-box strong {
-  font-size: 18px;
+  font-size: 15px;
   color: #ffffff;
 }
 
 .history-container {
-  max-height: 350px;
+  max-height: 380px;
   overflow-y: auto;
 }
 
