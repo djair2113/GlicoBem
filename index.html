@@ -3,34 +3,22 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GlicoBem - Controle de Glicemia</title>
+  <title>GlicoBem - Controle da Martinha</title>
   <link rel="stylesheet" href="style.css">
   <link rel="manifest" href="manifest.json">
 </head>
 <body>
 
-  <!-- Cabeçalho / Perfil -->
+  <!-- Cabeçalho Fixo da Martinha -->
   <header>
-    <h1 id="userProfileName">Martinha</h1>
+    <h1>Martinha</h1>
     <p id="userProfileAge">-- anos | Meu Controle Diário</p>
-    <button id="btnEditProfile" type="button">⚙️ Editar Perfil</button>
   </header>
 
-  <!-- Modal de Edição de Perfil -->
-  <div id="modalProfile" class="modal hidden">
-    <div class="modal-content">
-      <h3>Editar Perfil do Utilizador</h3>
-      <label for="inputUserName">Nome:</label>
-      <input type="text" id="inputUserName" value="Martinha">
-
-      <label for="inputUserBirth">Data de Nascimento:</label>
-      <input type="date" id="inputUserBirth" value="1959-10-18">
-
-      <div class="modal-actions">
-        <button type="button" id="btnSaveProfile">Guardar</button>
-        <button type="button" id="btnCancelProfile">Cancelar</button>
-      </div>
-    </div>
+  <!-- Mensagem Motivacional Bíblica -->
+  <div class="verse-card">
+    <p class="verse-text">📖 <em>"Deus é o nosso refúgio e fortaleza, socorro bem presente na hora da angústia."</em></p>
+    <span class="verse-ref">— Salmos 46:1</span>
   </div>
 
   <!-- Lembrete -->
@@ -48,29 +36,28 @@
       </div>
 
       <div class="form-group">
-        <label for="momentoGlicemia">Momento:</label>
+        <label for="momentoGlicemia">Momento / Refeição:</label>
         <select id="momentoGlicemia">
           <option value="Em Jejum">Em Jejum</option>
-          <option value="Antes do Café">Antes do Café</option>
+          <option value="Café da manhã">Café da manhã</option>
           <option value="Após o Café">Após o Café</option>
-          <option value="Antes do Almoço">Antes do Almoço</option>
+          <option value="Almoço">Almoço</option>
           <option value="Após o Almoço">Após o Almoço</option>
-          <option value="Antes do Jantar">Antes do Jantar</option>
-          <option value="Após o Jantar">Após o Jantar</option>
-          <option value="Ao Deitar">Ao Deitar</option>
-          <option value="De Madrugada">De Madrugada</option>
+          <option value="Janta">Janta</option>
+          <option value="Após a Janta">Após a Janta</option>
+
+          <option value="Noite">Noite</option>
+          <option value="Madrugada">Madrugada</option>
         </select>
       </div>
 
       <div class="form-group">
-        <label for="dataHoraGlicemia">Data e Hora da Medição:</label>
+        <label for="dataHoraGlicemia">Data e Hora:</label>
         <input type="datetime-local" id="dataHoraGlicemia" required>
       </div>
 
       <button type="submit" class="btn-primary">Salvar Medição</button>
     </form>
-
-    <div id="statusAlert" class="alert hidden"></div>
   </div>
 
   <!-- Painel de Métricas -->
@@ -82,44 +69,36 @@
         <strong id="metricTotal">-- mg/dL</strong>
       </div>
       <div class="metric-box">
-        <span>Média Mensal</span>
-        <strong id="metricMensal">-- mg/dL</strong>
-      </div>
-      <div class="metric-box">
-        <span>Média Trimestral</span>
-        <strong id="metricTrimestral">-- mg/dL</strong>
-      </div>
-      <div class="metric-box">
-        <span>Média Anual</span>
-        <strong id="metricAnual">-- mg/dL</strong>
+        <span>Total de Registros</span>
+        <strong id="metricCount">--</strong>
       </div>
     </div>
   </div>
 
   <!-- Histórico de Medições -->
   <div class="card">
-    <h2>📋 Histórico de Medições</h2>
+    <h2>📋 Histórico da Martinha</h2>
     <div class="history-container">
       <table id="historyTable">
         <thead>
           <tr>
-            <th>Data/Hora</th>
+            <th>Dia / Data</th>
             <th>Momento</th>
             <th>Valor</th>
             <th>Ação</th>
           </tr>
         </thead>
         <tbody id="historyBody">
-          <!-- Registos dinâmicos inseridos via JavaScript -->
+          <!-- Registros carregados via JavaScript -->
         </tbody>
       </table>
-      <p id="emptyHistory" class="empty-msg">Nenhuma medição registrada ainda.</p>
+      <p id="emptyHistory" class="empty-msg hidden">Nenhuma medição registrada ainda.</p>
     </div>
   </div>
 
   <!-- Sites Úteis -->
   <div class="card">
-    <h2>📚 Sites Úteis para Diabéticos</h2>
+    <h2>📚 Links Úteis</h2>
     <a href="https://diabetes.org.br/" target="_blank" class="link-btn">Sociedade Brasileira de Diabetes (SBD)</a>
     <a href="https://www.gov.br/saude/pt-br" target="_blank" class="link-btn">Ministério da Saúde - Orientações</a>
   </div>
