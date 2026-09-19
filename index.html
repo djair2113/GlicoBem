@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Controle de Glicemia</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="manifest" href="manifest.json">
+</head>
+<body>
+
+  <header>
+    <h1>Jussara Valença dos Santos</h1>
+    <p>38 anos | Meu Controle Diário</p>
+  </header>
+
+  <div class="reminder">
+    💊 Lembre-se de tomar as medicações prescritas pelo médico nos horários corretos!
+  </div>
+
+  <div class="card">
+    <h2>Registrar Nova Glicemia</h2>
+    <form id="glicemiaForm">
+      <div class="form-group">
+        <label for="valorGlicemia">Valor da Glicemia (mg/dL):</label>
+        <input type="number" id="valorGlicemia" placeholder="Ex: 145" required inputmode="numeric">
+      </div>
+      <div class="form-group">
+        <label for="momentoGlicemia">Momento:</label>
+        <select id="momentoGlicemia">
+          <option value="Antes do café">Antes do Café</option>
+          <option value="2h após café">2h Após Café</option>
+          <option value="Antes do almoço">Antes do Almoço</option>
+          <option value="2h após almoço">2h Após Almoço</option>
+          <option value="Antes da janta">Antes da Janta</option>
+          <option value="2h após janta">2h Após Janta</option>
+        </select>
+      </div>
+      <button type="submit" class="btn-primary">Salvar Medição</button>
+    </form>
+    <div id="feedbackBox" class="alert-box"></div>
+  </div>
+
+  <div class="card">
+    <h2>📊 Painel de Métricas (Para o Médico)</h2>
+    <div class="metrics-grid">
+      <div class="metric-card">
+        <h3>Média Total</h3>
+        <p id="avgTotal">-</p>
+      </div>
+      <div class="metric-card">
+        <h3>Média Mensal</h3>
+        <p id="avgMensal">-</p>
+      </div>
+      <div class="metric-card">
+        <h3>Média Trimestral</h3>
+        <p id="avgTrimestral">-</p>
+      </div>
+      <div class="metric-card">
+        <h3>Média Anual</h3>
+        <p id="avgAnual">-</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>📚 Sites Úteis para Diabéticos</h2>
+    <ul class="links-list">
+      <li><a href="https://www.diabetes.org.br" target="_blank">Sociedade Brasileira de Diabetes (SBD)</a></li>
+      <li><a href="https://www.gov.br/saude" target="_blank">Ministério da Saúde - Orientações</a></li>
+      <li><a href="https://diabetes.org" target="_blank">American Diabetes Association (Inglês)</a></li>
+    </ul>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
