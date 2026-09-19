@@ -7,7 +7,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const form = document.getElementById('glicemiaForm');
   if (form) {
     form.addEventListener('submit', (e) => {
-      // Bloqueia o recarregamento automático da página
       e.preventDefault();
       addMeasurement();
     });
@@ -17,7 +16,7 @@ document.addEventListener('DOMContentLoaded', () => {
 // --- DADOS FIXOS DA MARTINHA (Nascida em 18/10/1957) ---
 const BIRTH_DATE = '1957-10-18';
 
-// As 533 medições do histórico original do Excel incorporadas
+// Histórico inicial integrado
 const HISTORICO_INICIAL = [
   { "id": 1, "dia": "29", "momento": "Café da manhã", "valor": 223 },
   { "id": 2, "dia": "29", "momento": "Noite", "valor": 399 },
