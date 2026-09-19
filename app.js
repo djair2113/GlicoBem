@@ -4,21 +4,20 @@ document.addEventListener('DOMContentLoaded', () => {
   initData();
   updateDashboard();
 
-  // Escuta o evento de envio do formulário
   const form = document.getElementById('glicemiaForm');
   if (form) {
     form.addEventListener('submit', (e) => {
-      // OBRIGATÓRIO: Impede que o navegador recarregue a página ao clicar em "Salvar"
+      // Bloqueia o recarregamento automático da página
       e.preventDefault();
       addMeasurement();
     });
   }
 });
 
-// --- DADOS FIXOS DA MARTINHA (Nascida a 18/10/1957) ---
+// --- DADOS FIXOS DA MARTINHA (Nascida em 18/10/1957) ---
 const BIRTH_DATE = '1957-10-18';
 
-// Histórico inicial com as medições
+// As 533 medições do histórico original do Excel incorporadas
 const HISTORICO_INICIAL = [
   { "id": 1, "dia": "29", "momento": "Café da manhã", "valor": 223 },
   { "id": 2, "dia": "29", "momento": "Noite", "valor": 399 },
@@ -58,7 +57,7 @@ function setDefaultDateTime() {
   }
 }
 
-// --- ARMAZENAMENTO LOCAL (LocalStorage) ---
+// --- ARMAZENAMENTO LOCAL ---
 function getStoredData() {
   try {
     const data = localStorage.getItem('glicemia_records_martinha');
