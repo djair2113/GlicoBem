@@ -62,21 +62,36 @@
   <!-- Painel de Métricas -->
   <div class="card">
     <h2>📊 Painel de Métricas (Para o Médico)</h2>
-    <div class="metrics-grid">
+    <div class="metrics-grid-3">
       <div class="metric-box">
         <span>Média Total</span>
         <strong id="metricTotal">-- mg/dL</strong>
       </div>
       <div class="metric-box">
-        <span>Total de Registros</span>
-        <strong id="metricCount">--</strong>
+        <span>Média Mensal</span>
+        <strong id="metricMensal">-- mg/dL</strong>
+      </div>
+      <div class="metric-box">
+        <span>Média Trimestral</span>
+        <strong id="metricTrimestral">-- mg/dL</strong>
       </div>
     </div>
   </div>
 
-  <!-- Histórico -->
+  <!-- Histórico com Filtro Dropdown -->
   <div class="card">
-    <h2>📋 Histórico da Martinha</h2>
+    <div class="history-header">
+      <h2>📋 Histórico da Martinha</h2>
+      <div class="filter-group">
+        <label for="filtroHistorico">Visualizar:</label>
+        <select id="filtroHistorico" onchange="updateDashboard();">
+          <option value="todos">Todos os Registros</option>
+          <option value="mensal">Últimos 30 Dias (Mensal)</option>
+          <option value="trimestral">Últimos 90 Dias (Trimestral)</option>
+        </select>
+      </div>
+    </div>
+
     <div class="history-container">
       <table id="historyTable">
         <thead>
@@ -91,15 +106,17 @@
           <!-- Conteúdo carregado pelo app.js -->
         </tbody>
       </table>
-      <p id="emptyHistory" class="empty-msg hidden">Nenhuma medição registrada ainda.</p>
+      <p id="emptyHistory" class="empty-msg hidden">Nenhuma medição encontrada para o período selecionado.</p>
     </div>
   </div>
 
-  <!-- Links Úteis -->
+  <!-- Portais de Conhecimento -->
   <div class="card">
-    <h2>📚 Links Úteis</h2>
-    <a href="https://diabetes.org.br/" target="_blank" class="link-btn">Sociedade Brasileira de Diabetes (SBD)</a>
-    <a href="https://www.gov.br/saude/pt-br" target="_blank" class="link-btn">Ministério da Saúde - Orientações</a>
+    <h2>📚 Portais de Conhecimento e Nutrição</h2>
+    <a href="https://diabetes.org.br/" target="_blank" class="link-btn">🌐 Sociedade Brasileira de Diabetes (SBD)</a>
+    <a href="https://www.adj.org.br/" target="_blank" class="link-btn">💙 ADJ Diabetes Brasil (Apoio e Dicas)</a>
+    <a href="https://umdiabetico.com.br/" target="_blank" class="link-btn">📰 Um Diabético (Notícias e Alimentação)</a>
+    <a href="https://www.gov.br/saude/pt-br/assuntos/saude-de-a-a-z/d/diabetes" target="_blank" class="link-btn">🏛️ Ministério da Saúde - Guia Oficial</a>
   </div>
 
   <script src="./app.js"></script>
