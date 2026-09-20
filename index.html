@@ -6,6 +6,9 @@
   <title>GlicoBem - Controle da Martinha</title>
   <link rel="stylesheet" href="./style.css">
   <link rel="manifest" href="./manifest.json">
+  <!-- Lib de Gráficos (Chart.js) e QR Code -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </head>
 <body>
 
@@ -76,47 +79,91 @@
         <strong id="metricTrimestral">-- mg/dL</strong>
       </div>
     </div>
+
+    <!-- Ações de Exportação e QR Code -->
+    <div class="export-actions">
+      <button type="button" onclick="exportCSV()" class="btn-secondary">📥 Baixar Excel / CSV</button>
+      <button type="button" onclick="window.print()" class="btn-secondary">📄 Imprimir / Salvar PDF</button>
+      <button type="button" onclick="toggleQRCode()" class="btn-secondary">📱 QR Code para Médica</button>
+    </div>
+
+    <!-- Área do QR Code (Escondida por padrão) -->
+    <div id="qrCodeContainer" class="qr-container hidden">
+      <p>Escaneie com a câmera do celular para abrir este histórico:</p>
+      <div id="qrcode"></div>
+    </div>
   </div>
 
-  <!-- Histórico com Filtro Dropdown -->
+  <!-- Tela de Gráficos (Pizza e Colunas) -->
   <div class="card">
-    <div class="history-header">
-      <h2>📋 Histórico da Martinha</h2>
-      <div class="filter-group">
-        <label for="filtroHistorico">Visualizar:</label>
-        <select id="filtroHistorico" onchange="updateDashboard();">
-          <option value="todos">Todos os Registros</option>
-          <option value="mensal">Últimos 30 Dias (Mensal)</option>
-          <option value="trimestral">Últimos 90 Dias (Trimestral)</option>
-        </select>
+    <h2>📈 Análise Gráfica da Glicemia</h2>
+    <div class="charts-wrapper">
+      <div class="chart-box">
+        <h3>Distribuição do Controle (Pizza)</h3>
+        <canvas id="pieChart"></canvas>
+      </div>
+      <div class="chart-box">
+        <h3>Evolução da Glicemia (Colunas)</h3>
+        <canvas id="barChart"></canvas>
       </div>
     </div>
-
-    <div class="history-container">
-      <table id="historyTable">
-        <thead>
-          <tr>
-            <th>Dia / Data</th>
-            <th>Momento</th>
-            <th>Valor</th>
-            <th>Ação</th>
-          </tr>
-        </thead>
-        <tbody id="historyBody">
-          <!-- Conteúdo carregado pelo app.js -->
-        </tbody>
-      </table>
-      <p id="emptyHistory" class="empty-msg hidden">Nenhuma medição encontrada para o período selecionado.</p>
-    </div>
   </div>
 
-  <!-- Portais de Conhecimento -->
+  <!-- Histórico com Dropdown Retrátil (<details>) -->
   <div class="card">
-    <h2>📚 Portais de Conhecimento e Nutrição</h2>
-    <a href="https://diabetes.org.br/" target="_blank" class="link-btn">🌐 Sociedade Brasileira de Diabetes (SBD)</a>
-    <a href="https://www.adj.org.br/" target="_blank" class="link-btn">💙 ADJ Diabetes Brasil (Apoio e Dicas)</a>
-    <a href="https://umdiabetico.com.br/" target="_blank" class="link-btn">📰 Um Diabético (Notícias e Alimentação)</a>
-    <a href="https://www.gov.br/saude/pt-br/assuntos/saude-de-a-a-z/d/diabetes" target="_blank" class="link-btn">🏛️ Ministério da Saúde - Guia Oficial</a>
+    <details open>
+      <summary class="dropdown-header">📋 Histórico da Martinha (Clique para Expandir/Recolher)</summary>
+      
+      <div class="history-header">
+        <div class="filter-group">
+          <label for="filtroHistorico">Exibir:</label>
+          <select id="filtroHistorico" onchange="updateDashboard();">
+            <option value="10">Últimos 10 registros</option>
+            <option value="20">Últimos 20 registros</option>
+            <option value="50">Últimos 50 registros</option>
+            <option value="mensal">Último Mês (30 dias)</option>
+            <option value="trimestral">Último Trimestre (90 dias)</option>
+            <option value="todos" selected>Todos os Registros (533+)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="history-container">
+        <table id="historyTable">
+          <thead>
+            <tr>
+              <th>Dia / Data</th>
+              <th>Momento</th>
+              <th>Valor</th>
+              <th>Ação</th>
+            </tr>
+          </thead>
+          <tbody id="historyBody">
+            <!-- Conteúdo carregado pelo app.js -->
+          </tbody>
+        </table>
+        <p id="emptyHistory" class="empty-msg hidden">Nenhuma medição encontrada.</p>
+      </div>
+    </details>
+  </div>
+
+  <!-- Portais de Conhecimento com Dropdown Retrátil (<details>) -->
+  <div class="card">
+    <details>
+      <summary class="dropdown-header">📚 Portais de Conhecimento e Nutrição (10 Sites Recomendados)</summary>
+      <div class="links-list">
+        <a href="https://diabetes.org.br/" target="_blank" class="link-btn">🌐 Sociedade Brasileira de Diabetes (SBD)</a>
+        <a href="https://www.adj.org.br/" target="_blank" class="link-btn">💙 ADJ Diabetes Brasil (Apoio e Orientação)</a>
+        <a href="https://umdiabetico.com.br/" target="_blank" class="link-btn">📰 Um Diabético (Notícias e Alimentação)</a>
+        <a href="https://www.gov.br/saude/pt-br/assuntos/saude-de-a-a-z/d/diabetes" target="_blank" class="link-btn">🏛️ Ministério da Saúde - Guia Oficial</a>
+        <a href="https://diabetesplay.com.br/" target="_blank" class="link-btn">🎥 Diabetes Play SBD (Vídeos e Aulas)</a>
+        <a href="https://www.endocrino.org.br/" target="_blank" class="link-btn">🩺 Sociedade Brasileira de Endocrinologia (SBEM)</a>
+        <a href="https://www.idf.org/" target="_blank" class="link-btn">🌍 International Diabetes Federation (IDF)</a>
+        <a href="https://www.anad.org.br/" target="_blank" class="link-btn">🤝 Associação Nacional de Atenção ao Diabetes (ANAD)</a>
+        <a href="https://pebmed.com.br/" target="_blank" class="link-btn">🩺 Portal PEBMED (Artigos e Atualizações Médicas)</a>
+        <a href="https://www.gov.br/saude/pt-br/assuntos/noticias" target="_blank" class="link-btn">📗 Blog da Saúde (Dicas de Vida Saudável)</a>
+      </div>
+    </details>
   </div>
 
   <script src="./app.js"></script>
