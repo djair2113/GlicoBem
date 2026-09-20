@@ -1,7 +1,9 @@
 let pieChartInstance = null;
 let barChartInstance = null;
 
-// Lista de Mensagens Motivacionais e Inspiradoras
+// Configuração de Login (Senha padrão: 1234)
+const PASSWORD_SECRET = "1234";
+
 const FRASES_MOTIVACIONAIS = [
   { text: "📖 \"Deus é o nosso refúgio e fortaleza, socorro bem presente na hora da angústia.\"", ref: "— Salmos 46:1" },
   { text: "☀️ \"Cada novo dia é uma nova oportunidade para cuidar da sua saúde com carinho e fé!\"", ref: "— Inspiração Diária" },
@@ -11,23 +13,74 @@ const FRASES_MOTIVACIONAIS = [
 ];
 
 document.addEventListener('DOMContentLoaded', () => {
+  checkLoginState();
+  initTheme();
   initAge();
   setDefaultDateTime();
   initData();
   loadRandomMotivationalMessage();
   updateDashboard();
   initQRCode();
-
-  const form = document.getElementById('glicemiaForm');
-  if (form) {
-    form.addEventListener('submit', (e) => {
-      e.preventDefault();
-      addMeasurement();
-    });
-  }
 });
 
-// --- DADOS FIXOS DA MARTINHA (18/10/1957) ---
+// --- AUTENTICAÇÃO E LOGIN ---
+function checkLoginState() {
+  const isLoggedIn = sessionStorage.getItem('glicobem_auth');
+  const loginScreen = document.getElementById('loginScreen');
+  const appContent = document.getElementById('appContent');
+
+  if (isLoggedIn === 'true') {
+    if (loginScreen) loginScreen.classList.add('hidden');
+    if (appContent) appContent.classList.remove('hidden');
+  } else {
+    if (loginScreen) loginScreen.classList.remove('hidden');
+    if (appContent) appContent.classList.add('hidden');
+  }
+}
+
+function handleLogin() {
+  const pwdInput = document.getElementById('loginPassword');
+  const errorMsg = document.getElementById('loginError');
+
+  if (pwdInput && pwdInput.value === PASSWORD_SECRET) {
+    sessionStorage.setItem('glicobem_auth', 'true');
+    if (errorMsg) errorMsg.classList.add('hidden');
+    pwdInput.value = '';
+    checkLoginState();
+  } else {
+    if (errorMsg) errorMsg.classList.remove('hidden');
+  }
+}
+
+function handleLogout() {
+  sessionStorage.removeItem('glicobem_auth');
+  checkLoginState();
+}
+
+// --- TEMA CLARO E ESCURO ---
+function initTheme() {
+  const savedTheme = localStorage.getItem('glicobem_theme') || 'dark';
+  document.body.className = savedTheme + '-theme';
+  updateThemeButton(savedTheme);
+}
+
+function toggleTheme() {
+  const currentTheme = document.body.classList.contains('dark-theme') ? 'dark' : 'light';
+  const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+  document.body.className = newTheme + '-theme';
+  localStorage.setItem('glicobem_theme', newTheme);
+  updateThemeButton(newTheme);
+  updateDashboard(); // Redesenha gráficos com novas cores
+}
+
+function updateThemeButton(theme) {
+  const btn = document.getElementById('themeBtn');
+  if (btn) {
+    btn.textContent = theme === 'dark' ? '☀️ Tema Claro' : '🌙 Tema Escuro';
+  }
+}
+
+// --- DADOS MARTINHA ---
 const BIRTH_DATE = '1957-10-18';
 
 function loadRandomMotivationalMessage() {
@@ -46,13 +99,9 @@ function initAge() {
   const today = new Date();
   let age = today.getFullYear() - birth.getFullYear();
   const m = today.getMonth() - birth.getMonth();
-  if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) {
-    age--;
-  }
+  if (m < 0 || (m === 0 && today.getDate() < birth.getDate())) age--;
   const ageEl = document.getElementById('userProfileAge');
-  if (ageEl) {
-    ageEl.textContent = `${age} anos | Meu Controle Diário`;
-  }
+  if (ageEl) ageEl.textContent = `${age} anos | Meu Controle Diário`;
 }
 
 function setDefaultDateTime() {
@@ -64,23 +113,17 @@ function setDefaultDateTime() {
   }
 }
 
-// --- ARMAZENAMENTO LOCAL (LOCALSTORAGE v8) ---
 function getStoredData() {
   try {
-    const data = localStorage.getItem('glicemia_records_martinha_v8');
+    const data = localStorage.getItem('glicemia_records_martinha_v9');
     return data ? JSON.parse(data) : null;
-  } catch (err) {
-    console.error("Erro ao ler LocalStorage:", err);
-    return null;
-  }
+  } catch (err) { return null; }
 }
 
 function saveStoredData(data) {
   try {
-    localStorage.setItem('glicemia_records_martinha_v8', JSON.stringify(data));
-  } catch (err) {
-    console.error("Erro ao salvar no LocalStorage:", err);
-  }
+    localStorage.setItem('glicemia_records_martinha_v9', JSON.stringify(data));
+  } catch (err) {}
 }
 
 function initData() {
@@ -102,18 +145,12 @@ function addMeasurement() {
   const dateObj = new Date(dataHoraInput.value);
   const formattedDate = dateObj.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
 
-  const record = {
-    id: Date.now(),
-    dia: formattedDate,
-    momento: momento,
-    valor: valor
-  };
+  const record = { id: Date.now(), dia: formattedDate, momento: momento, valor: valor };
 
   let records = getStoredData() || [];
   records.unshift(record);
   saveStoredData(records);
 
-  // Avaliação e Alerta Visual com Parâmetros
   triggerVisualFeedback(valor, momento);
 
   valorInput.value = '';
@@ -121,7 +158,7 @@ function addMeasurement() {
   updateDashboard();
 }
 
-// --- AVALIAÇÃO DE PARÂMETROS E CONFETES ---
+// --- FEEDBACK VISUAL E ALERTA DE EMERGÊNCIA ---
 function triggerVisualFeedback(valor, momento) {
   const isJejum = momento.toLowerCase().includes('jejum');
   const banner = document.getElementById('feedbackBanner');
@@ -129,58 +166,49 @@ function triggerVisualFeedback(valor, momento) {
 
   banner.className = 'feedback-banner';
 
+  let isDanger = false;
+
   if (isJejum) {
     if (valor < 100) {
-      // BOM / NORMAL EM JEJUM (< 100)
       banner.classList.add('success');
       banner.innerHTML = `🎉 Parabéns, Martinha! Sua glicemia em jejum de ${valor} mg/dL está perfeita!`;
       launchConfetti();
     } else if (valor <= 125) {
-      // ATENÇÃO EM JEJUM (100 - 125)
       banner.classList.add('warning');
-      banner.innerHTML = `⚠️ Atenção: Sua glicemia em jejum de ${valor} mg/dL está no limiar de atenção (100-125 mg/dL).`;
+      banner.innerHTML = `⚠️ Atenção: Glicemia em jejum de ${valor} mg/dL em limiar de atenção (100-125 mg/dL).`;
     } else {
-      // PERIGO EM JEJUM (>= 126)
+      isDanger = true;
       banner.classList.add('danger');
-      banner.innerHTML = `🚨 Alerta de Hiperglicemia: Glicemia em jejum elevada (${valor} mg/dL). Siga as orientações médicas!`;
+      banner.innerHTML = `🚨 Alerta de Hiperglicemia em Jejum: ${valor} mg/dL!<br>
+        <a href="https://api.whatsapp.com/send?text=ALERTA%20GLICEMIA%20MARTINHA:%20Valor%20de%20${valor}%20mg/dL%20em%20Jejum!" target="_blank" class="btn-emergency-action">📲 Notificar Filho via WhatsApp</a>`;
     }
   } else {
-    // PÓS-REFEIÇÃO / OUTROS MOMENTOS
     if (valor < 140) {
-      // BOM / NORMAL PÓS-REFEIÇÃO (< 140)
       banner.classList.add('success');
-      banner.innerHTML = `🎉 Excelente resultado! Glicemia de ${valor} mg/dL dentro da meta ideal (<140 mg/dL)!`;
+      banner.innerHTML = `🎉 Excelente! Glicemia de ${valor} mg/dL dentro da meta ideal (<140 mg/dL)!`;
       launchConfetti();
     } else if (valor <= 199) {
-      // ATENÇÃO PÓS-REFEIÇÃO (140 - 199)
       banner.classList.add('warning');
-      banner.innerHTML = `⚠️ Atenção: Glicemia de ${valor} mg/dL em estado de atenção pós-refeição (140-199 mg/dL).`;
+      banner.innerHTML = `⚠️ Atenção: Glicemia de ${valor} mg/dL em atenção pós-refeição (140-199 mg/dL).`;
     } else {
-      // PERIGO PÓS-REFEIÇÃO (>= 200)
+      isDanger = true;
       banner.classList.add('danger');
-      banner.innerHTML = `🚨 Alerta: Glicemia pós-refeição acima de 200 mg/dL (${valor} mg/dL). Redobre os cuidados!`;
+      banner.innerHTML = `🚨 Alerta de Hiperglicemia Pós-Refeição: ${valor} mg/dL!<br>
+        <a href="https://api.whatsapp.com/send?text=ALERTA%20GLICEMIA%20MARTINHA:%20Valor%20de%20${valor}%20mg/dL!" target="_blank" class="btn-emergency-action">📲 Notificar Filho via WhatsApp</a>`;
     }
   }
 
-  // Oculta o banner após 10 segundos
-  setTimeout(() => {
-    banner.classList.add('hidden');
-  }, 10000);
+  banner.classList.remove('hidden');
 }
 
 function launchConfetti() {
   if (typeof confetti === 'function') {
-    confetti({
-      particleCount: 100,
-      spread: 70,
-      origin: { y: 0.6 }
-    });
+    confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
   }
 }
 
 function deleteMeasurement(id) {
-  const confirmacao = confirm("Tem certeza de que deseja apagar este registro de glicemia?");
-  if (confirmacao) {
+  if (confirm("Tem certeza de que deseja apagar este registro?")) {
     let records = getStoredData() || [];
     records = records.filter(r => r.id !== id);
     saveStoredData(records);
@@ -188,25 +216,18 @@ function deleteMeasurement(id) {
   }
 }
 
-// --- ATUALIZAÇÃO DO PAINEL ---
+// --- ATUALIZAÇÃO DO PAINEL E GRÁFICOS ---
 function updateDashboard() {
   const allRecords = getStoredData() || [];
   const filterSelect = document.getElementById('filtroHistorico');
   const filterValue = filterSelect ? filterSelect.value : 'todos';
 
   let filteredRecords = allRecords;
-
-  if (filterValue === '10') {
-    filteredRecords = allRecords.slice(0, 10);
-  } else if (filterValue === '20') {
-    filteredRecords = allRecords.slice(0, 20);
-  } else if (filterValue === '50') {
-    filteredRecords = allRecords.slice(0, 50);
-  } else if (filterValue === 'mensal') {
-    filteredRecords = allRecords.slice(0, 30);
-  } else if (filterValue === 'trimestral') {
-    filteredRecords = allRecords.slice(0, 90);
-  }
+  if (filterValue === '10') filteredRecords = allRecords.slice(0, 10);
+  else if (filterValue === '20') filteredRecords = allRecords.slice(0, 20);
+  else if (filterValue === '50') filteredRecords = allRecords.slice(0, 50);
+  else if (filterValue === 'mensal') filteredRecords = allRecords.slice(0, 30);
+  else if (filterValue === 'trimestral') filteredRecords = allRecords.slice(0, 90);
 
   renderHistory(filteredRecords);
   renderMetrics(allRecords);
@@ -219,12 +240,10 @@ function renderHistory(records) {
   if (!tbody) return;
 
   tbody.innerHTML = '';
-
   if (!records || records.length === 0) {
     if (emptyMsg) emptyMsg.classList.remove('hidden');
     return;
   }
-
   if (emptyMsg) emptyMsg.classList.add('hidden');
 
   records.forEach(r => {
@@ -244,36 +263,25 @@ function renderMetrics(records) {
   const metricMensal = document.getElementById('metricMensal');
   const metricTrimestral = document.getElementById('metricTrimestral');
 
-  if (!records || records.length === 0) {
-    if (metricTotal) metricTotal.textContent = '-- mg/dL';
-    if (metricMensal) metricMensal.textContent = '-- mg/dL';
-    if (metricTrimestral) metricTrimestral.textContent = '-- mg/dL';
-    return;
-  }
+  if (!records || records.length === 0) return;
 
-  const avgTotal = calcAvg(records);
-  const avgMensal = calcAvg(records.slice(0, 30));
-  const avgTrimestral = calcAvg(records.slice(0, 90));
-
-  if (metricTotal) metricTotal.textContent = `${avgTotal} mg/dL`;
-  if (metricMensal) metricMensal.textContent = `${avgMensal} mg/dL`;
-  if (metricTrimestral) metricTrimestral.textContent = `${avgTrimestral} mg/dL`;
+  if (metricTotal) metricTotal.textContent = `${calcAvg(records)} mg/dL`;
+  if (metricMensal) metricMensal.textContent = `${calcAvg(records.slice(0, 30))} mg/dL`;
+  if (metricTrimestral) metricTrimestral.textContent = `${calcAvg(records.slice(0, 90))} mg/dL`;
 }
 
 function calcAvg(arr) {
   if (!arr || arr.length === 0) return '--';
-  const sum = arr.reduce((acc, curr) => acc + curr.valor, 0);
-  return (sum / arr.length).toFixed(1);
+  return (arr.reduce((acc, curr) => acc + curr.valor, 0) / arr.length).toFixed(1);
 }
 
-// --- GRÁFICOS (PIZZA E COLUNAS) ---
 function renderCharts(records) {
   if (!records || records.length === 0) return;
 
-  let normal = 0;   // < 140
-  let atencao = 0;  // 140 - 180
-  let alta = 0;     // > 180
+  const isDark = document.body.classList.contains('dark-theme');
+  const textColor = isDark ? '#ffffff' : '#333333';
 
+  let normal = 0, atencao = 0, alta = 0;
   records.forEach(r => {
     if (r.valor < 140) normal++;
     else if (r.valor <= 180) atencao++;
@@ -287,88 +295,56 @@ function renderCharts(records) {
       type: 'pie',
       data: {
         labels: ['Normal (<140)', 'Atenção (140-180)', 'Elevada (>180)'],
-        datasets: [{
-          data: [normal, atencao, alta],
-          backgroundColor: ['#4caf50', '#ff9800', '#f44336']
-        }]
+        datasets: [{ data: [normal, atencao, alta], backgroundColor: ['#4caf50', '#ff9800', '#f44336'] }]
       },
-      options: {
-        responsive: true,
-        plugins: { legend: { labels: { color: '#ffffff' } } }
-      }
+      options: { responsive: true, plugins: { legend: { labels: { color: textColor } } } }
     });
   }
 
   const ctxBar = document.getElementById('barChart');
   if (ctxBar) {
     if (barChartInstance) barChartInstance.destroy();
-
     const displayRecords = records.slice(0, 20).reverse();
-    const labels = displayRecords.map(r => r.dia);
-    const dataVals = displayRecords.map(r => r.valor);
-
     barChartInstance = new Chart(ctxBar, {
       type: 'bar',
       data: {
-        labels: labels,
-        datasets: [{
-          label: 'Glicemia (mg/dL)',
-          data: dataVals,
-          backgroundColor: '#64b5f6'
-        }]
+        labels: displayRecords.map(r => r.dia),
+        datasets: [{ label: 'Glicemia (mg/dL)', data: displayRecords.map(r => r.valor), backgroundColor: '#64b5f6' }]
       },
       options: {
         responsive: true,
-        scales: {
-          x: { ticks: { color: '#cccccc' } },
-          y: { ticks: { color: '#cccccc' } }
-        },
-        plugins: { legend: { labels: { color: '#ffffff' } } }
+        scales: { x: { ticks: { color: textColor } }, y: { ticks: { color: textColor } } },
+        plugins: { legend: { labels: { color: textColor } } }
       }
     });
   }
 }
 
-// --- EXPORTAÇÃO CSV PARA O MÉDICO ---
 function exportCSV() {
   const records = getStoredData() || [];
-  if (records.length === 0) return alert('Nenhum dado para exportar.');
-
   let csvContent = "data:text/csv;charset=utf-8,ID,Data,Momento,Valor (mg/dL)\n";
-  records.forEach(r => {
-    csvContent += `${r.id},"${r.dia}","${r.momento}",${r.valor}\n`;
-  });
-
-  const encodedUri = encodeURI(csvContent);
+  records.forEach(r => { csvContent += `${r.id},"${r.dia}","${r.momento}",${r.valor}\n`; });
   const link = document.createElement("a");
-  link.setAttribute("href", encodedUri);
+  link.setAttribute("href", encodeURI(csvContent));
   link.setAttribute("download", "relatorio_glicemia_martinha.csv");
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
 }
 
-// --- GERADOR DE QR CODE ---
 function initQRCode() {
   const qrDiv = document.getElementById("qrcode");
   if (qrDiv) {
     qrDiv.innerHTML = "";
-    new QRCode(qrDiv, {
-      text: window.location.href,
-      width: 140,
-      height: 140
-    });
+    new QRCode(qrDiv, { text: window.location.href, width: 140, height: 140 });
   }
 }
 
 function toggleQRCode() {
   const container = document.getElementById("qrCodeContainer");
-  if (container) {
-    container.classList.toggle("hidden");
-  }
+  if (container) container.classList.toggle("hidden");
 }
 
-// Histórico com TODOS os 533 registros
 const HISTORICO_INICIAL = [
   {"id": 533, "dia": "19 de setembro", "momento": "Glicemia", "valor": 136},
   {"id": 532, "dia": "18 de setembro", "momento": "Glicemia", "valor": 129},
