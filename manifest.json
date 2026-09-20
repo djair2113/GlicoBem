@@ -1,20 +1,25 @@
 {
-  "name": "GlicoBem - Controle de Glicemia",
   "short_name": "GlicoBem",
-  "start_url": "./index.html",
-  "display": "standalone",
-  "background_color": "#121212",
-  "theme_color": "#1e3a5f",
+  "name": "GlicoBem - Controle da Martinha",
   "icons": [
     {
       "src": "icon-192.png",
+      "type": "image/png",
       "sizes": "192x192",
-      "type": "image/png"
+      "purpose": "any maskable"
     },
     {
       "src": "icon-512.png",
+      "type": "image/png",
       "sizes": "512x512",
-      "type": "image/png"
+      "purpose": "any maskable"
     }
-  ]
+  ],
+  "start_url": "./index.html",
+  "background_color": "#121212",
+  "theme_color": "#1e3a5f",
+  "display": "standalone",
+  "orientation": "portrait",
+  "lang": "pt-BR",
+  "description": "Aplicativo de acompanhamento diário da glicemia e métricas de saúde da Martinha."
 }
