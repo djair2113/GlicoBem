@@ -1,10 +1,20 @@
 let pieChartInstance = null;
 let barChartInstance = null;
 
+// Lista de Mensagens Motivacionais e Inspiradoras
+const FRASES_MOTIVACIONAIS = [
+  { text: "📖 \"Deus é o nosso refúgio e fortaleza, socorro bem presente na hora da angústia.\"", ref: "— Salmos 46:1" },
+  { text: "☀️ \"Cada novo dia é uma nova oportunidade para cuidar da sua saúde com carinho e fé!\"", ref: "— Inspiração Diária" },
+  { text: "💪 \"Pequenas vitórias diárias constroem uma vida cheia de saúde e vitalidade.\"", ref: "— Motivação Martinha" },
+  { text: "📖 \"Tudo posso naquele que me fortalece.\"", ref: "— Filipenses 4:13" },
+  { text: "🌟 \"Sua dedicação de hoje garante a sua tranquilidade de amanhã. Continue firme!\"", ref: "— Equipe GlicoBem" }
+];
+
 document.addEventListener('DOMContentLoaded', () => {
   initAge();
   setDefaultDateTime();
   initData();
+  loadRandomMotivationalMessage();
   updateDashboard();
   initQRCode();
 
@@ -19,6 +29,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // --- DADOS FIXOS DA MARTINHA (18/10/1957) ---
 const BIRTH_DATE = '1957-10-18';
+
+function loadRandomMotivationalMessage() {
+  const msgText = document.getElementById('motivationalMessage');
+  const msgRef = document.getElementById('motivationalRef');
+  if (msgText && msgRef) {
+    const randomIndex = Math.floor(Math.random() * FRASES_MOTIVACIONAIS.length);
+    const item = FRASES_MOTIVACIONAIS[randomIndex];
+    msgText.innerHTML = item.text;
+    msgRef.innerHTML = item.ref;
+  }
+}
 
 function initAge() {
   const birth = new Date(BIRTH_DATE);
@@ -43,10 +64,10 @@ function setDefaultDateTime() {
   }
 }
 
-// --- ARMAZENAMENTO LOCAL (LOCALSTORAGE v7) ---
+// --- ARMAZENAMENTO LOCAL (LOCALSTORAGE v8) ---
 function getStoredData() {
   try {
-    const data = localStorage.getItem('glicemia_records_martinha_v7');
+    const data = localStorage.getItem('glicemia_records_martinha_v8');
     return data ? JSON.parse(data) : null;
   } catch (err) {
     console.error("Erro ao ler LocalStorage:", err);
@@ -56,7 +77,7 @@ function getStoredData() {
 
 function saveStoredData(data) {
   try {
-    localStorage.setItem('glicemia_records_martinha_v7', JSON.stringify(data));
+    localStorage.setItem('glicemia_records_martinha_v8', JSON.stringify(data));
   } catch (err) {
     console.error("Erro ao salvar no LocalStorage:", err);
   }
@@ -76,33 +97,98 @@ function addMeasurement() {
 
   if (!valorInput || !valorInput.value || !dataHoraInput || !dataHoraInput.value) return;
 
+  const valor = parseFloat(valorInput.value);
+  const momento = momentoSelect ? momentoSelect.value : 'Glicemia';
   const dateObj = new Date(dataHoraInput.value);
   const formattedDate = dateObj.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
 
   const record = {
     id: Date.now(),
     dia: formattedDate,
-    momento: momentoSelect ? momentoSelect.value : 'Glicemia',
-    valor: parseFloat(valorInput.value)
+    momento: momento,
+    valor: valor
   };
 
   let records = getStoredData() || [];
   records.unshift(record);
   saveStoredData(records);
 
+  // Avaliação e Alerta Visual com Parâmetros
+  triggerVisualFeedback(valor, momento);
+
   valorInput.value = '';
   setDefaultDateTime();
   updateDashboard();
 }
 
-function deleteMeasurement(id) {
-  let records = getStoredData() || [];
-  records = records.filter(r => r.id !== id);
-  saveStoredData(records);
-  updateDashboard();
+// --- AVALIAÇÃO DE PARÂMETROS E CONFETES ---
+function triggerVisualFeedback(valor, momento) {
+  const isJejum = momento.toLowerCase().includes('jejum');
+  const banner = document.getElementById('feedbackBanner');
+  if (!banner) return;
+
+  banner.className = 'feedback-banner';
+
+  if (isJejum) {
+    if (valor < 100) {
+      // BOM / NORMAL EM JEJUM (< 100)
+      banner.classList.add('success');
+      banner.innerHTML = `🎉 Parabéns, Martinha! Sua glicemia em jejum de ${valor} mg/dL está perfeita!`;
+      launchConfetti();
+    } else if (valor <= 125) {
+      // ATENÇÃO EM JEJUM (100 - 125)
+      banner.classList.add('warning');
+      banner.innerHTML = `⚠️ Atenção: Sua glicemia em jejum de ${valor} mg/dL está no limiar de atenção (100-125 mg/dL).`;
+    } else {
+      // PERIGO EM JEJUM (>= 126)
+      banner.classList.add('danger');
+      banner.innerHTML = `🚨 Alerta de Hiperglicemia: Glicemia em jejum elevada (${valor} mg/dL). Siga as orientações médicas!`;
+    }
+  } else {
+    // PÓS-REFEIÇÃO / OUTROS MOMENTOS
+    if (valor < 140) {
+      // BOM / NORMAL PÓS-REFEIÇÃO (< 140)
+      banner.classList.add('success');
+      banner.innerHTML = `🎉 Excelente resultado! Glicemia de ${valor} mg/dL dentro da meta ideal (<140 mg/dL)!`;
+      launchConfetti();
+    } else if (valor <= 199) {
+      // ATENÇÃO PÓS-REFEIÇÃO (140 - 199)
+      banner.classList.add('warning');
+      banner.innerHTML = `⚠️ Atenção: Glicemia de ${valor} mg/dL em estado de atenção pós-refeição (140-199 mg/dL).`;
+    } else {
+      // PERIGO PÓS-REFEIÇÃO (>= 200)
+      banner.classList.add('danger');
+      banner.innerHTML = `🚨 Alerta: Glicemia pós-refeição acima de 200 mg/dL (${valor} mg/dL). Redobre os cuidados!`;
+    }
+  }
+
+  // Oculta o banner após 10 segundos
+  setTimeout(() => {
+    banner.classList.add('hidden');
+  }, 10000);
 }
 
-// --- ATUALIZAÇÃO SINCRO DO PAINEL, TABELA E GRÁFICOS ---
+function launchConfetti() {
+  if (typeof confetti === 'function') {
+    confetti({
+      particleCount: 100,
+      spread: 70,
+      origin: { y: 0.6 }
+    });
+  }
+}
+
+function deleteMeasurement(id) {
+  const confirmacao = confirm("Tem certeza de que deseja apagar este registro de glicemia?");
+  if (confirmacao) {
+    let records = getStoredData() || [];
+    records = records.filter(r => r.id !== id);
+    saveStoredData(records);
+    updateDashboard();
+  }
+}
+
+// --- ATUALIZAÇÃO DO PAINEL ---
 function updateDashboard() {
   const allRecords = getStoredData() || [];
   const filterSelect = document.getElementById('filtroHistorico');
@@ -184,7 +270,6 @@ function calcAvg(arr) {
 function renderCharts(records) {
   if (!records || records.length === 0) return;
 
-  // Categoria de métricas para o gráfico de pizza
   let normal = 0;   // < 140
   let atencao = 0;  // 140 - 180
   let alta = 0;     // > 180
@@ -195,7 +280,6 @@ function renderCharts(records) {
     else alta++;
   });
 
-  // 1. Gráfico de Pizza
   const ctxPie = document.getElementById('pieChart');
   if (ctxPie) {
     if (pieChartInstance) pieChartInstance.destroy();
@@ -215,12 +299,11 @@ function renderCharts(records) {
     });
   }
 
-  // 2. Gráfico de Colunas (Evolução dos últimos registros exibidos)
   const ctxBar = document.getElementById('barChart');
   if (ctxBar) {
     if (barChartInstance) barChartInstance.destroy();
 
-    const displayRecords = records.slice(0, 20).reverse(); // Exibe até 20 do mais antigo p/ o mais recente
+    const displayRecords = records.slice(0, 20).reverse();
     const labels = displayRecords.map(r => r.dia);
     const dataVals = displayRecords.map(r => r.valor);
 
