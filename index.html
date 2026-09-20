@@ -6,9 +6,10 @@
   <title>GlicoBem - Controle da Martinha</title>
   <link rel="stylesheet" href="./style.css">
   <link rel="manifest" href="./manifest.json">
-  <!-- Lib de Gráficos (Chart.js) e QR Code -->
+  <!-- Libs externas: Chart.js, QRCode e Canvas Confetti -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 </head>
 <body>
 
@@ -18,16 +19,19 @@
     <p id="userProfileAge">-- anos | Meu Controle Diário</p>
   </header>
 
-  <!-- Versículo Bíblico -->
+  <!-- Mensagem Motivacional Inspiradora -->
   <div class="verse-card">
-    <p class="verse-text">📖 <em>"Deus é o nosso refúgio e fortaleza, socorro bem presente na hora da angústia."</em></p>
-    <span class="verse-ref">— Salmos 46:1</span>
+    <p class="verse-text" id="motivationalMessage">📖 <em>"Deus é o nosso refúgio e fortaleza, socorro bem presente na hora da angústia."</em></p>
+    <span class="verse-ref" id="motivationalRef">— Salmos 46:1</span>
   </div>
 
-  <!-- Lembrete -->
+  <!-- Lembrete de Medicamentos -->
   <div class="reminder">
     💊 Lembre-se de tomar as medicações prescritas pelo médico nos horários corretos!
   </div>
+
+  <!-- Caixinha de Alerta Visual Instantâneo -->
+  <div id="feedbackBanner" class="feedback-banner hidden"></div>
 
   <!-- Formulário de Registro -->
   <div class="card">
@@ -35,7 +39,7 @@
     <form id="glicemiaForm" onsubmit="event.preventDefault(); addMeasurement();">
       <div class="form-group">
         <label for="valorGlicemia">Valor da Glicemia (mg/dL):</label>
-        <input type="number" id="valorGlicemia" placeholder="Ex: 145" required>
+        <input type="number" id="valorGlicemia" placeholder="Ex: 120" required>
       </div>
 
       <div class="form-group">
@@ -62,7 +66,7 @@
     </form>
   </div>
 
-  <!-- Painel de Métricas -->
+  <!-- Painel de Métricas para o Médico -->
   <div class="card">
     <h2>📊 Painel de Métricas (Para o Médico)</h2>
     <div class="metrics-grid-3">
@@ -80,36 +84,37 @@
       </div>
     </div>
 
-    <!-- Ações de Exportação e QR Code -->
+    <!-- Exportação e QR Code -->
     <div class="export-actions">
       <button type="button" onclick="exportCSV()" class="btn-secondary">📥 Baixar Excel / CSV</button>
       <button type="button" onclick="window.print()" class="btn-secondary">📄 Imprimir / Salvar PDF</button>
       <button type="button" onclick="toggleQRCode()" class="btn-secondary">📱 QR Code para Médica</button>
     </div>
 
-    <!-- Área do QR Code (Escondida por padrão) -->
     <div id="qrCodeContainer" class="qr-container hidden">
       <p>Escaneie com a câmera do celular para abrir este histórico:</p>
       <div id="qrcode"></div>
     </div>
   </div>
 
-  <!-- Tela de Gráficos (Pizza e Colunas) -->
+  <!-- Análise Gráfica em Dropdown Retrátil (<details>) -->
   <div class="card">
-    <h2>📈 Análise Gráfica da Glicemia</h2>
-    <div class="charts-wrapper">
-      <div class="chart-box">
-        <h3>Distribuição do Controle (Pizza)</h3>
-        <canvas id="pieChart"></canvas>
+    <details open>
+      <summary class="dropdown-header">📈 Análise Gráfica da Glicemia (Clique para Expandir/Recolher)</summary>
+      <div class="charts-wrapper">
+        <div class="chart-box">
+          <h3>Distribuição do Controle (Pizza)</h3>
+          <canvas id="pieChart"></canvas>
+        </div>
+        <div class="chart-box">
+          <h3>Evolução da Glicemia (Colunas)</h3>
+          <canvas id="barChart"></canvas>
+        </div>
       </div>
-      <div class="chart-box">
-        <h3>Evolução da Glicemia (Colunas)</h3>
-        <canvas id="barChart"></canvas>
-      </div>
-    </div>
+    </details>
   </div>
 
-  <!-- Histórico com Dropdown Retrátil (<details>) -->
+  <!-- Histórico Retrátil (<details>) -->
   <div class="card">
     <details open>
       <summary class="dropdown-header">📋 Histórico da Martinha (Clique para Expandir/Recolher)</summary>
@@ -147,7 +152,7 @@
     </details>
   </div>
 
-  <!-- Portais de Conhecimento com Dropdown Retrátil (<details>) -->
+  <!-- Portais de Conhecimento Retrátil (<details>) -->
   <div class="card">
     <details>
       <summary class="dropdown-header">📚 Portais de Conhecimento e Nutrição (10 Sites Recomendados)</summary>
