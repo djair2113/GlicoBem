@@ -39,10 +39,10 @@ function setDefaultDateTime() {
   }
 }
 
-// --- ARMAZENAMENTO LOCAL ---
+// --- ARMAZENAMENTO LOCAL (LOCALSTORAGE) ---
 function getStoredData() {
   try {
-    const data = localStorage.getItem('glicemia_records_martinha_v3');
+    const data = localStorage.getItem('glicemia_records_martinha_v4');
     return data ? JSON.parse(data) : null;
   } catch (err) {
     console.error("Erro ao ler LocalStorage:", err);
@@ -52,7 +52,7 @@ function getStoredData() {
 
 function saveStoredData(data) {
   try {
-    localStorage.setItem('glicemia_records_martinha_v3', JSON.stringify(data));
+    localStorage.setItem('glicemia_records_martinha_v4', JSON.stringify(data));
   } catch (err) {
     console.error("Erro ao salvar no LocalStorage:", err);
   }
@@ -79,8 +79,7 @@ function addMeasurement() {
     id: Date.now(),
     dia: formattedDate,
     momento: momentoSelect ? momentoSelect.value : 'Glicemia',
-    valor: parseFloat(valorInput.value),
-    timestamp: dateObj.getTime()
+    valor: parseFloat(valorInput.value)
   };
 
   let records = getStoredData() || [];
@@ -99,20 +98,18 @@ function deleteMeasurement(id) {
   updateDashboard();
 }
 
+// --- ATUALIZAÇÃO SINCRO DO PAINEL E HISTÓRICO ---
 function updateDashboard() {
   const allRecords = getStoredData() || [];
   const filterSelect = document.getElementById('filtroHistorico');
   const filterValue = filterSelect ? filterSelect.value : 'todos';
 
   let filteredRecords = allRecords;
-  const now = Date.now();
-  const thirtyDaysMs = 30 * 24 * 60 * 60 * 1000;
-  const ninetyDaysMs = 90 * 24 * 60 * 60 * 1000;
 
   if (filterValue === 'mensal') {
-    filteredRecords = allRecords.filter(r => r.timestamp ? (now - r.timestamp) <= thirtyDaysMs : true).slice(0, 30);
+    filteredRecords = allRecords.slice(0, 30);
   } else if (filterValue === 'trimestral') {
-    filteredRecords = allRecords.filter(r => r.timestamp ? (now - r.timestamp) <= ninetyDaysMs : true).slice(0, 90);
+    filteredRecords = allRecords.slice(0, 90);
   }
 
   renderHistory(filteredRecords);
@@ -126,7 +123,7 @@ function renderHistory(records) {
 
   tbody.innerHTML = '';
 
-  if (records.length === 0) {
+  if (!records || records.length === 0) {
     if (emptyMsg) emptyMsg.classList.remove('hidden');
     return;
   }
@@ -150,7 +147,7 @@ function renderMetrics(records) {
   const metricMensal = document.getElementById('metricMensal');
   const metricTrimestral = document.getElementById('metricTrimestral');
 
-  if (records.length === 0) {
+  if (!records || records.length === 0) {
     if (metricTotal) metricTotal.textContent = '-- mg/dL';
     if (metricMensal) metricMensal.textContent = '-- mg/dL';
     if (metricTrimestral) metricTrimestral.textContent = '-- mg/dL';
