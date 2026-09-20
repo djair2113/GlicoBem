@@ -1,8 +1,12 @@
+let pieChartInstance = null;
+let barChartInstance = null;
+
 document.addEventListener('DOMContentLoaded', () => {
   initAge();
   setDefaultDateTime();
   initData();
   updateDashboard();
+  initQRCode();
 
   const form = document.getElementById('glicemiaForm');
   if (form) {
@@ -39,10 +43,10 @@ function setDefaultDateTime() {
   }
 }
 
-// --- ARMAZENAMENTO LOCAL (LOCALSTORAGE v5) ---
+// --- ARMAZENAMENTO LOCAL (LOCALSTORAGE v7) ---
 function getStoredData() {
   try {
-    const data = localStorage.getItem('glicemia_records_martinha_v5');
+    const data = localStorage.getItem('glicemia_records_martinha_v7');
     return data ? JSON.parse(data) : null;
   } catch (err) {
     console.error("Erro ao ler LocalStorage:", err);
@@ -52,7 +56,7 @@ function getStoredData() {
 
 function saveStoredData(data) {
   try {
-    localStorage.setItem('glicemia_records_martinha_v5', JSON.stringify(data));
+    localStorage.setItem('glicemia_records_martinha_v7', JSON.stringify(data));
   } catch (err) {
     console.error("Erro ao salvar no LocalStorage:", err);
   }
@@ -98,7 +102,7 @@ function deleteMeasurement(id) {
   updateDashboard();
 }
 
-// --- ATUALIZAÇÃO SINCRO DO PAINEL E HISTÓRICO ---
+// --- ATUALIZAÇÃO SINCRO DO PAINEL, TABELA E GRÁFICOS ---
 function updateDashboard() {
   const allRecords = getStoredData() || [];
   const filterSelect = document.getElementById('filtroHistorico');
@@ -106,7 +110,13 @@ function updateDashboard() {
 
   let filteredRecords = allRecords;
 
-  if (filterValue === 'mensal') {
+  if (filterValue === '10') {
+    filteredRecords = allRecords.slice(0, 10);
+  } else if (filterValue === '20') {
+    filteredRecords = allRecords.slice(0, 20);
+  } else if (filterValue === '50') {
+    filteredRecords = allRecords.slice(0, 50);
+  } else if (filterValue === 'mensal') {
     filteredRecords = allRecords.slice(0, 30);
   } else if (filterValue === 'trimestral') {
     filteredRecords = allRecords.slice(0, 90);
@@ -114,6 +124,7 @@ function updateDashboard() {
 
   renderHistory(filteredRecords);
   renderMetrics(allRecords);
+  renderCharts(filteredRecords);
 }
 
 function renderHistory(records) {
@@ -169,7 +180,112 @@ function calcAvg(arr) {
   return (sum / arr.length).toFixed(1);
 }
 
-// Histórico com todos os 533 registros ordenados do mais recente (Setembro) para o mais antigo
+// --- GRÁFICOS (PIZZA E COLUNAS) ---
+function renderCharts(records) {
+  if (!records || records.length === 0) return;
+
+  // Categoria de métricas para o gráfico de pizza
+  let normal = 0;   // < 140
+  let atencao = 0;  // 140 - 180
+  let alta = 0;     // > 180
+
+  records.forEach(r => {
+    if (r.valor < 140) normal++;
+    else if (r.valor <= 180) atencao++;
+    else alta++;
+  });
+
+  // 1. Gráfico de Pizza
+  const ctxPie = document.getElementById('pieChart');
+  if (ctxPie) {
+    if (pieChartInstance) pieChartInstance.destroy();
+    pieChartInstance = new Chart(ctxPie, {
+      type: 'pie',
+      data: {
+        labels: ['Normal (<140)', 'Atenção (140-180)', 'Elevada (>180)'],
+        datasets: [{
+          data: [normal, atencao, alta],
+          backgroundColor: ['#4caf50', '#ff9800', '#f44336']
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { labels: { color: '#ffffff' } } }
+      }
+    });
+  }
+
+  // 2. Gráfico de Colunas (Evolução dos últimos registros exibidos)
+  const ctxBar = document.getElementById('barChart');
+  if (ctxBar) {
+    if (barChartInstance) barChartInstance.destroy();
+
+    const displayRecords = records.slice(0, 20).reverse(); // Exibe até 20 do mais antigo p/ o mais recente
+    const labels = displayRecords.map(r => r.dia);
+    const dataVals = displayRecords.map(r => r.valor);
+
+    barChartInstance = new Chart(ctxBar, {
+      type: 'bar',
+      data: {
+        labels: labels,
+        datasets: [{
+          label: 'Glicemia (mg/dL)',
+          data: dataVals,
+          backgroundColor: '#64b5f6'
+        }]
+      },
+      options: {
+        responsive: true,
+        scales: {
+          x: { ticks: { color: '#cccccc' } },
+          y: { ticks: { color: '#cccccc' } }
+        },
+        plugins: { legend: { labels: { color: '#ffffff' } } }
+      }
+    });
+  }
+}
+
+// --- EXPORTAÇÃO CSV PARA O MÉDICO ---
+function exportCSV() {
+  const records = getStoredData() || [];
+  if (records.length === 0) return alert('Nenhum dado para exportar.');
+
+  let csvContent = "data:text/csv;charset=utf-8,ID,Data,Momento,Valor (mg/dL)\n";
+  records.forEach(r => {
+    csvContent += `${r.id},"${r.dia}","${r.momento}",${r.valor}\n`;
+  });
+
+  const encodedUri = encodeURI(csvContent);
+  const link = document.createElement("a");
+  link.setAttribute("href", encodedUri);
+  link.setAttribute("download", "relatorio_glicemia_martinha.csv");
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+}
+
+// --- GERADOR DE QR CODE ---
+function initQRCode() {
+  const qrDiv = document.getElementById("qrcode");
+  if (qrDiv) {
+    qrDiv.innerHTML = "";
+    new QRCode(qrDiv, {
+      text: window.location.href,
+      width: 140,
+      height: 140
+    });
+  }
+}
+
+function toggleQRCode() {
+  const container = document.getElementById("qrCodeContainer");
+  if (container) {
+    container.classList.toggle("hidden");
+  }
+}
+
+// Histórico com TODOS os 533 registros
 const HISTORICO_INICIAL = [
   {"id": 533, "dia": "19 de setembro", "momento": "Glicemia", "valor": 136},
   {"id": 532, "dia": "18 de setembro", "momento": "Glicemia", "valor": 129},
