@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GlicoBem - Controle de Saúde</title>
+  <title>GlicoBem - Controle da Martinha</title>
   <link rel="stylesheet" href="./style.css">
   <link rel="manifest" href="./manifest.json">
   <!-- Libs externas -->
@@ -15,12 +15,14 @@
 
   <div id="appContent" class="app-container">
 
-    <!-- Cabeçalho Acessível -->
+    <!-- Cabeçalho Acessível com Orquídeas -->
     <header>
       <div class="header-top">
+        <span class="header-flower-left">🌸</span>
         <button type="button" class="theme-toggle-btn" onclick="toggleTheme()" id="themeBtn">☀️ Tema Claro</button>
+        <span class="header-flower-right">🌸</span>
       </div>
-      <h1 id="userProfileName">Controle Diário da Glicemia</h1>
+      <h1 id="userProfileName">Martinha</h1>
       <p id="userProfileAge" class="profile-age">-- anos | Meu Controle Diário</p>
     </header>
 
@@ -73,7 +75,7 @@
 
     <!-- Painel de Métricas -->
     <div class="card">
-      <h2>📊 Painel de Métricas</h2>
+      <h2>📊 Painel de Métricas (Para o Médico)</h2>
       <div class="metrics-grid-3">
         <div class="metric-box">
           <span>Média Total</span>
@@ -104,7 +106,7 @@
     <!-- Análise Gráfica Retrátil -->
     <div class="card">
       <details open>
-        <summary class="dropdown-header">📈 Análise Gráfica</summary>
+        <summary class="dropdown-header">📈 Análise Gráfica da Glicemia</summary>
         <div class="charts-wrapper">
           <div class="chart-box">
             <h3>Distribuição do Controle (Pizza)</h3>
@@ -121,7 +123,7 @@
     <!-- Histórico Retrátil -->
     <div class="card">
       <details open>
-        <summary class="dropdown-header">📋 Histórico de Medições</summary>
+        <summary class="dropdown-header">📋 Histórico da Martinha</summary>
         
         <div class="history-header">
           <div class="filter-group">
@@ -132,7 +134,7 @@
               <option value="50">Últimos 50 registros</option>
               <option value="mensal">Último Mês (30 dias)</option>
               <option value="trimestral">Último Trimestre (90 dias)</option>
-              <option value="todos" selected>Todos os Registros</option>
+              <option value="todos" selected>Todos os Registros (533+)</option>
             </select>
           </div>
         </div>
@@ -178,7 +180,7 @@
         <div class="links-list">
           <a href="https://diabetes.org.br/" target="_blank" class="link-btn">🌐 Sociedade Brasileira de Diabetes (SBD)</a>
           <a href="https://www.adj.org.br/" target="_blank" class="link-btn">💙 ADJ Diabetes Brasil</a>
-          <a href="https://umdiabetico.com.br/" target="_blank" class="link-btn">📰 Um Diabético (Informaçōes e Dicas)</a>
+          <a href="https://umdiabetico.com.br/" target="_blank" class="link-btn">📰 Um Diabético (Informações e Dicas)</a>
           <a href="https://www.gov.br/saude/pt-br/assuntos/saude-de-a-a-z/d/diabetes" target="_blank" class="link-btn">🏛️ Ministério da Saúde</a>
           <a href="https://www.endocrino.org.br/" target="_blank" class="link-btn">🩺 Sociedade Brasileira de Endocrinologia</a>
         </div>
