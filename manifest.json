@@ -1,6 +1,6 @@
 {
   "short_name": "GlicoBem",
-  "name": "GlicoBem - Controle da Martinha",
+  "name": "GlicoBem - Controle Diário da Glicemia",
   "icons": [
     {
       "src": "icon-192.png",
@@ -21,5 +21,5 @@
   "display": "standalone",
   "orientation": "portrait",
   "lang": "pt-BR",
-  "description": "Aplicativo de acompanhamento diário da glicemia e métricas de saúde da Martinha."
+  "description": "Aplicativo de acompanhamento e registro diário da glicemia."
 }
