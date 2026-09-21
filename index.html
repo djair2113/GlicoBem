@@ -3,55 +3,39 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GlicoBem - Controle da Martinha</title>
+  <title>GlicoBem - Controle de Saúde</title>
   <link rel="stylesheet" href="./style.css">
   <link rel="manifest" href="./manifest.json">
-  <!-- Libs externas: Chart.js, QRCode, Canvas Confetti e EmailJS -->
+  <!-- Libs externas -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 </head>
 <body class="dark-theme">
 
-  <!-- Tela de Login / Acesso Protegido -->
-  <div id="loginScreen" class="login-overlay">
-    <div class="login-card">
-      <h2>🔒 Acesso ao GlicoBem</h2>
-      <p>Digite a senha para acessar o controle da Martinha:</p>
-      <form id="loginForm" onsubmit="event.preventDefault(); handleLogin();">
-        <input type="password" id="loginPassword" placeholder="Digite a senha (Padrão: 1234)" required>
-        <button type="submit" class="btn-primary">Entrar</button>
-        <p id="loginError" class="login-error hidden">Senha incorreta. Tente novamente.</p>
-      </form>
-    </div>
-  </div>
+  <div id="appContent" class="app-container">
 
-  <!-- Conteúdo Principal da Aplicação -->
-  <div id="appContent" class="app-container hidden">
-
-    <!-- Cabeçalho com Alternador de Tema -->
+    <!-- Cabeçalho Acessível -->
     <header>
       <div class="header-top">
         <button type="button" class="theme-toggle-btn" onclick="toggleTheme()" id="themeBtn">☀️ Tema Claro</button>
-        <button type="button" class="logout-btn" onclick="handleLogout()">🔒 Sair</button>
       </div>
-      <h1>Martinha</h1>
-      <p id="userProfileAge">-- anos | Meu Controle Diário</p>
+      <h1 id="userProfileName">Controle Diário da Glicemia</h1>
+      <p id="userProfileAge" class="profile-age">-- anos | Meu Controle Diário</p>
     </header>
 
-    <!-- Mensagem Motivacional Inspiradora -->
+    <!-- Mensagem Motivacional -->
     <div class="verse-card">
       <p class="verse-text" id="motivationalMessage">📖 <em>"Deus é o nosso refúgio e fortaleza, socorro bem presente na hora da angústia."</em></p>
       <span class="verse-ref" id="motivationalRef">— Salmos 46:1</span>
     </div>
 
-    <!-- Lembrete de Medicamentos -->
+    <!-- Lembrete -->
     <div class="reminder">
       💊 Lembre-se de tomar as medicações prescritas pelo médico nos horários corretos!
     </div>
 
-    <!-- Banner de Feedback Visual e Alerta de Emergência -->
+    <!-- Banner de Feedback -->
     <div id="feedbackBanner" class="feedback-banner hidden"></div>
 
     <!-- Formulário de Registro -->
@@ -87,9 +71,9 @@
       </form>
     </div>
 
-    <!-- Painel de Métricas para o Médico -->
+    <!-- Painel de Métricas -->
     <div class="card">
-      <h2>📊 Painel de Métricas (Para o Médico)</h2>
+      <h2>📊 Painel de Métricas</h2>
       <div class="metrics-grid-3">
         <div class="metric-box">
           <span>Média Total</span>
@@ -105,7 +89,6 @@
         </div>
       </div>
 
-      <!-- Exportação e QR Code -->
       <div class="export-actions">
         <button type="button" onclick="exportCSV()" class="btn-secondary">📥 Baixar Excel / CSV</button>
         <button type="button" onclick="window.print()" class="btn-secondary">📄 Imprimir / Salvar PDF</button>
@@ -113,15 +96,15 @@
       </div>
 
       <div id="qrCodeContainer" class="qr-container hidden">
-        <p>Escaneie com a câmera do celular para abrir este histórico:</p>
+        <p>Escaneie para visualizar o histórico:</p>
         <div id="qrcode"></div>
       </div>
     </div>
 
-    <!-- Análise Gráfica em Dropdown Retrátil (<details>) -->
+    <!-- Análise Gráfica Retrátil -->
     <div class="card">
       <details open>
-        <summary class="dropdown-header">📈 Análise Gráfica da Glicemia (Clique para Expandir/Recolher)</summary>
+        <summary class="dropdown-header">📈 Análise Gráfica</summary>
         <div class="charts-wrapper">
           <div class="chart-box">
             <h3>Distribuição do Controle (Pizza)</h3>
@@ -135,10 +118,10 @@
       </details>
     </div>
 
-    <!-- Histórico Retrátil (<details>) -->
+    <!-- Histórico Retrátil -->
     <div class="card">
       <details open>
-        <summary class="dropdown-header">📋 Histórico da Martinha (Clique para Expandir/Recolher)</summary>
+        <summary class="dropdown-header">📋 Histórico de Medições</summary>
         
         <div class="history-header">
           <div class="filter-group">
@@ -149,7 +132,7 @@
               <option value="50">Últimos 50 registros</option>
               <option value="mensal">Último Mês (30 dias)</option>
               <option value="trimestral">Último Trimestre (90 dias)</option>
-              <option value="todos" selected>Todos os Registros (533+)</option>
+              <option value="todos" selected>Todos os Registros</option>
             </select>
           </div>
         </div>
@@ -158,74 +141,51 @@
           <table id="historyTable">
             <thead>
               <tr>
-                <th>Dia / Data</th>
+                <th>Data</th>
                 <th>Momento</th>
                 <th>Valor</th>
                 <th>Ação</th>
               </tr>
             </thead>
-            <tbody id="historyBody">
-              <!-- Conteúdo carregado pelo app.js -->
-            </tbody>
+            <tbody id="historyBody"></tbody>
           </table>
           <p id="emptyHistory" class="empty-msg hidden">Nenhuma medição encontrada.</p>
         </div>
       </details>
     </div>
 
-    <!-- Contatos de Emergência Retrátil (<details>) -->
+    <!-- Contatos de Emergência Editáveis -->
     <div class="card">
       <details open>
         <summary class="dropdown-header">🚨 Contatos de Emergência</summary>
-        <div class="contacts-list">
-          <div class="contact-item">
-            <div>
-              <strong>Djair Santos</strong>
-              <span>Grau: Filho / Responsável</span>
-              <small>📱 (11) 99999-9999 | ✉️ djair@email.com</small>
-            </div>
-            <a href="tel:11999999999" class="btn-call">📞 Ligar</a>
-          </div>
-          <div class="contact-item">
-            <div>
-              <strong>Dra. Médica Endocrinologista</strong>
-              <span>Grau: Médica Responsável</span>
-              <small>📱 (11) 98888-8888</small>
-            </div>
-            <a href="tel:11988888888" class="btn-call">📞 Ligar</a>
-          </div>
-          <div class="contact-item">
-            <div>
-              <strong>SAMU - Emergência Médica</strong>
-              <span>Grau: Serviço Público de Saúde</span>
-              <small>📞 192</small>
-            </div>
-            <a href="tel:192" class="btn-call">📞 192</a>
-          </div>
+        
+        <div id="emergencyContactsList" class="contacts-list"></div>
+
+        <div class="add-contact-box">
+          <h3>Adicionar Novo Contato</h3>
+          <input type="text" id="contactName" placeholder="Nome (Ex: Djair)">
+          <input type="text" id="contactRelation" placeholder="Grau / Parentesco (Ex: Genro)">
+          <input type="tel" id="contactPhone" placeholder="Telefone com DDD (Ex: 11999999999)">
+          <button type="button" onclick="addNewContact()" class="btn-primary mt-10">➕ Adicionar Contato</button>
         </div>
       </details>
     </div>
 
-    <!-- Portais de Conhecimento Retrátil (<details>) -->
+    <!-- Portais de Conhecimento -->
     <div class="card">
       <details>
-        <summary class="dropdown-header">📚 Portais de Conhecimento e Nutrição (10 Sites Recomendados)</summary>
+        <summary class="dropdown-header">📚 Portais de Saúde e Nutrição</summary>
         <div class="links-list">
           <a href="https://diabetes.org.br/" target="_blank" class="link-btn">🌐 Sociedade Brasileira de Diabetes (SBD)</a>
-          <a href="https://www.adj.org.br/" target="_blank" class="link-btn">💙 ADJ Diabetes Brasil (Apoio e Orientação)</a>
-          <a href="https://umdiabetico.com.br/" target="_blank" class="link-btn">📰 Um Diabético (Notícias e Alimentação)</a>
-          <a href="https://www.gov.br/saude/pt-br/assuntos/saude-de-a-a-z/d/diabetes" target="_blank" class="link-btn">🏛️ Ministério da Saúde - Guia Oficial</a>
-          <a href="https://diabetesplay.com.br/" target="_blank" class="link-btn">🎥 Diabetes Play SBD (Vídeos e Aulas)</a>
-          <a href="https://www.endocrino.org.br/" target="_blank" class="link-btn">🩺 Sociedade Brasileira de Endocrinologia (SBEM)</a>
-          <a href="https://www.idf.org/" target="_blank" class="link-btn">🌍 International Diabetes Federation (IDF)</a>
-          <a href="https://www.anad.org.br/" target="_blank" class="link-btn">🤝 Associação Nacional de Atenção ao Diabetes (ANAD)</a>
-          <a href="https://pebmed.com.br/" target="_blank" class="link-btn">🩺 Portal PEBMED (Artigos Médicos)</a>
-          <a href="https://www.gov.br/saude/pt-br/assuntos/noticias" target="_blank" class="link-btn">📗 Blog da Saúde (Dicas de Vida Saudável)</a>
+          <a href="https://www.adj.org.br/" target="_blank" class="link-btn">💙 ADJ Diabetes Brasil</a>
+          <a href="https://umdiabetico.com.br/" target="_blank" class="link-btn">📰 Um Diabético (Informaçōes e Dicas)</a>
+          <a href="https://www.gov.br/saude/pt-br/assuntos/saude-de-a-a-z/d/diabetes" target="_blank" class="link-btn">🏛️ Ministério da Saúde</a>
+          <a href="https://www.endocrino.org.br/" target="_blank" class="link-btn">🩺 Sociedade Brasileira de Endocrinologia</a>
         </div>
       </details>
     </div>
 
-    <!-- Rodapé com Copyright -->
+    <!-- Rodapé -->
     <footer>
       <p>© 2026 GlicoBem - Todos os direitos reservados.</p>
       <p>Desenvolvido com ❤️ por <strong>djair2113</strong></p>
